@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace AssetStudio
 {
@@ -21,6 +22,25 @@ namespace AssetStudio
 
     public static class SpriteHelper
     {
+        public static SpriteInfo spriteinfo = new SpriteInfo();
+        public static string GetSpriteFolderName(this Sprite m_Sprite)
+        {
+            return Regex.Replace(m_Sprite.m_Name, @"\d+$", "");
+        }
+
+        public static Image<Bgra32> GetSpriteTexture(this Sprite m_Sprite, ref string texture2dName)
+        {
+            if (m_Sprite.m_SpriteAtlas != null && m_Sprite.m_SpriteAtlas.TryGet(out var m_SpriteAtlas))
+            {
+                if (m_SpriteAtlas.m_RenderDataMap.TryGetValue(m_Sprite.m_RenderDataKey, out var spriteAtlasData) && spriteAtlasData.texture.TryGet(out var m_Texture2D))
+                {
+                    texture2dName = m_Texture2D.Name;
+                    return m_Texture2D.ConvertToImage(true);
+                }
+            }
+            return null;
+        }
+
         public static Image<Bgra32> GetImage(this Sprite m_Sprite, SpriteMaskMode spriteMaskMode = SpriteMaskMode.On)
         {
             if (m_Sprite.m_SpriteAtlas != null && m_Sprite.m_SpriteAtlas.TryGet(out var m_SpriteAtlas))
@@ -100,12 +120,22 @@ namespace AssetStudio
                 }
                 var rectX = (int)MathF.Floor(textureRect.x);
                 var rectY = (int)MathF.Floor(textureRect.y);
-                var rectRight = (int)MathF.Ceiling(textureRect.x + textureRect.width);
-                var rectBottom = (int)MathF.Ceiling(textureRect.y + textureRect.height);
+                var rectRight = (int)MathF.Floor(textureRect.x + textureRect.width); // 修改：從 MathF.Ceiling 改為 MathF.Floor
+                var rectBottom = (int)MathF.Floor(textureRect.y + textureRect.height); // 修改：從 MathF.Ceiling 改為 MathF.Floor
                 rectRight = Math.Min(rectRight, originalImage.Width);
                 rectBottom = Math.Min(rectBottom, originalImage.Height);
                 var rect = new Rectangle(rectX, rectY, rectRight - rectX, rectBottom - rectY);
                 var spriteImage = originalImage.Clone(x => x.Crop(rect));
+                var canvasWidth = (int)m_Sprite.m_Rect.width;
+                var canvasHeight = (int)m_Sprite.m_Rect.height;
+                var unifiedImage = new Image<Bgra32>(canvasWidth, canvasHeight, SixLabors.ImageSharp.Color.Transparent);
+                Vector2 pivotPosition = new Vector2(
+                      m_Sprite.m_Rect.width * m_Sprite.m_Pivot.X + m_Sprite.m_Offset.X,
+                      m_Sprite.m_Rect.height * m_Sprite.m_Pivot.Y + m_Sprite.m_Offset.Y
+                  );
+                Vector2 adjustedPivot = pivotPosition - textureRectOffset;
+                var placeX = (int)Math.Round((canvasWidth * 0.5f - adjustedPivot.X));
+
                 originalImage.Dispose();
                 if (settingsRaw.packed == 1)
                 {
@@ -123,6 +153,7 @@ namespace AssetStudio
                             break;
                         case SpritePackingRotation.Rotate90:
                             spriteImage.Mutate(x => x.Rotate(270));
+                            Logger.Warning($"Please Tell Author Yuki.kaco Rotate90 {m_Texture2D.Name} {m_Sprite.Name} ");
                             break;
                     }
                 }
@@ -148,7 +179,7 @@ namespace AssetStudio
                             GraphicsOptions = new GraphicsOptions
                             {
                                 Antialias = false,
-                                AlphaCompositionMode = PixelAlphaCompositionMode.DestOut
+                                AlphaCompositionMode = PixelAlphaCompositionMode.SrcOver
                             }
                         };
                         if (triangles.Length < 1024)
@@ -157,12 +188,51 @@ namespace AssetStudio
                             try
                             {
                                 spriteImage.Mutate(x => x.Fill(options, SixLabors.ImageSharp.Color.Red, rectP.Clip(path)));
-                                spriteImage.Mutate(x => x.Flip(FlipMode.Vertical));
-                                return spriteImage;
+                                unifiedImage.Mutate(x => x.DrawImage(spriteImage, new Point(placeX, (int)(Math.Round(-adjustedPivot.Y + pivotPosition.Y))), 1f));
+
+
+                                //// 計算矩形邊界（假設 rectP 與 spriteImage 的範圍對應）
+                                //int leftX = placeX -1; // 外框左邊
+                                //int rightX = placeX + spriteImage.Width; // 外框右邊
+                                //int bottomY = (int)(-adjustedPivot.Y + pivotPosition.Y) -1; // 外框底邊
+                                //int topY = (int)(-adjustedPivot.Y + pivotPosition.Y) + spriteImage.Height; // 外框頂邊
+
+                                //// 水平邊（上下兩條線）
+                                //for (int x = leftX; x <= rightX; x++)
+                                //{
+                                //    if (x >= 0 && x < canvasWidth)
+                                //    {
+                                //        if (bottomY >= 0 && bottomY < canvasHeight)
+                                //            unifiedImage[x, bottomY] = new Bgra32(255, 0, 0, 255); // 底邊外框
+                                //        if (topY >= 0 && topY < canvasHeight)
+                                //            unifiedImage[x, topY] = new Bgra32(255, 0, 0, 255); // 頂邊外框
+                                //    }
+                                //}
+
+                                //// 垂直邊（左右兩條線）
+                                //for (int y = bottomY; y <= topY; y++)
+                                //{
+                                //    if (y >= 0 && y < canvasHeight)
+                                //    {
+                                //        if (leftX >= 0 && leftX < canvasWidth)
+                                //            unifiedImage[leftX, y] = new Bgra32(255, 0, 0, 255); // 左邊外框
+                                //        if (rightX >= 0 && rightX < canvasWidth)
+                                //            unifiedImage[rightX, y] = new Bgra32(255, 0, 0, 255); // 右邊外框
+                                //    }
+                                //}
+
+                                unifiedImage.Mutate(x => x.Flip(FlipMode.Vertical));
+                                string bundleName = System.IO.Path.GetFileNameWithoutExtension(m_Sprite.assetsFile.originalPath).Replace(".spriteatlas", "");
+                                spriteinfo.Add(0, rect.X, rect.Y,placeX,(int)(-adjustedPivot.Y + pivotPosition.Y),rect.Width,rect.Height, string.Join("_", m_Texture2D.Name.Split(System.IO.Path.GetInvalidFileNameChars())), $"{bundleName}/{GetSpriteFolderName(m_Sprite)}/{m_Sprite.Name}.png", false, settingsRaw.packingRotation);
+
+                                var pointss = triangles.SelectMany(x => x).Select(y => new PointF(y.X, y.Y)).ToArray();
+                                spriteinfo.SavePathPoints(spriteinfo.sid.Count - 1, pointss);
+                                return unifiedImage;
                             }
-                            catch (ArgumentOutOfRangeException)
+                            catch (ArgumentOutOfRangeException ex)
                             {
                                 // ignored
+                                Logger.Warning($"{ex}");
                             }
                         }
                         using (var mask = new Image<Bgra32>(rect.Width, rect.Height, SixLabors.ImageSharp.Color.Black))

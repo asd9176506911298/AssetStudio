@@ -1,5 +1,6 @@
 ﻿using AssetStudio;
 using CubismLive2DExtractor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -91,6 +92,7 @@ namespace AssetStudioGUI
         private static Dictionary<Object, string> l2dAssetContainers = new Dictionary<Object, string>();
         internal static Action<string> StatusStripUpdate = x => { };
         internal static Fbx.Settings FbxSettings;
+        public static string CKCExportPath = "";
 
         public static int ExtractFolder(string path, string savePath)
         {
@@ -539,6 +541,7 @@ namespace AssetStudioGUI
 
         public static void ExportAssets(string savePath, List<AssetItem> toExportAssets, ExportType exportType)
         {
+            SpriteHelper.spriteinfo.clear();
             ThreadPool.QueueUserWorkItem(state =>
             {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
@@ -612,8 +615,11 @@ namespace AssetStudioGUI
                         {
                             case ClassIDType.Texture2D:
                             case ClassIDType.Texture2DArrayImage:
-                            case ClassIDType.Sprite:
                             case ClassIDType.AudioClip:
+                                toParallelExportAssetDict.TryAdd(asset, exportPath);
+                                break;
+                            case ClassIDType.Sprite:
+                                exportPath = Path.Combine(savePath, Path.GetFileNameWithoutExtension(asset.Container));
                                 toParallelExportAssetDict.TryAdd(asset, exportPath);
                                 break;
                             case ClassIDType.Texture2DArray:
@@ -683,6 +689,7 @@ namespace AssetStudioGUI
                 {
                     var asset = toExportAsset.Key;
                     var exportPath = toExportAsset.Value;
+                    CKCExportPath = exportPath;
                     try
                     {
                         if (ParallelExporter.ParallelExportConvertFile(asset, exportPath, out var debugLog))
@@ -714,6 +721,25 @@ namespace AssetStudioGUI
                         }
                     }
                 });
+
+                string atlasFolderPath = Path.Combine(CKCExportPath, "0.Atlases");
+
+                // 檢查資料夾是否存在，若不存在則創建
+                if (!Directory.Exists(atlasFolderPath))
+                {
+                    Directory.CreateDirectory(atlasFolderPath);
+                }
+
+                SpriteHelper.spriteinfo.Sort();
+
+                using (FileStream fileStream = File.Create(Path.Combine(CKCExportPath,"0.Atlases","SpriteInfo.json")))
+                {
+                    using (StreamWriter streamWriter = new StreamWriter(fileStream))
+                    {
+                        string value = JsonConvert.SerializeObject(SpriteHelper.spriteinfo, Formatting.Indented);
+                        streamWriter.Write(value);
+                    }
+                }
                 ParallelExporter.ClearHash();
 
                 foreach (var ex in exceptionMsgs)

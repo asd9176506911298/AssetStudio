@@ -77,17 +77,64 @@ namespace AssetStudioGUI
             var spriteMaskMode = Properties.Settings.Default.exportSpriteWithMask ? SpriteMaskMode.Export : SpriteMaskMode.Off;
             if (!TryExportFile(exportPath, item, "." + type.ToString().ToLower(), out var exportFullPath))
                 return false;
+            string texture2dName = "";
+            var spriteTexture2D = ((Sprite)item.Asset).GetSpriteTexture(ref texture2dName);
+            if (spriteTexture2D != null)
+            {
+                using (spriteTexture2D)
+                {
+                    // 確保目錄存在
+                    string directoryPath = Path.Combine(Studio.CKCExportPath, "0.Atlases");
+                    Directory.CreateDirectory(directoryPath);
+
+                    // 儲存檔案
+                    string safeTextureName = string.Join("_", texture2dName.Split(Path.GetInvalidFileNameChars()));
+                    string filePath = Path.Combine(directoryPath, $"{safeTextureName}.png");
+                    string dir = Path.GetDirectoryName(filePath);
+                    try
+                    {
+                        if (CanWrite(filePath, dir, canOverwrite: false))
+                        {
+                            using (var file = File.OpenWrite(filePath))
+                            {
+                                spriteTexture2D.WriteToStream(file, type);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        debugLog += $"⏭️ 跳過 Atlas：{Path.GetFileName(filePath)} - {ex.Message}\n";
+                    }
+                }
+            }
             var image = ((Sprite)item.Asset).GetImage(spriteMaskMode: spriteMaskMode);
             if (image != null)
             {
                 using (image)
                 {
-                    using (var file = File.OpenWrite(exportFullPath))
+                    // 優化後（複製貼上用）
+                    string folderName = ((Sprite)item.Asset).GetSpriteFolderName();
+                    string fileName = Path.GetFileName(exportFullPath);
+
+                    // 🔥 您的 CanWrite 解決空格！
+                    string fullFilePath = Path.Combine(Path.GetDirectoryName(exportFullPath), folderName, fileName);
+                    string dir = Path.GetDirectoryName(fullFilePath);
+                    try
                     {
-                        image.WriteToStream(file, type);
+                        if (CanWrite(fullFilePath, dir, canOverwrite: false))
+                        {
+                            using (var file = File.OpenWrite(fullFilePath))
+                            {
+                                image.WriteToStream(file, type);
+                            }
+                            debugLog += $"{item.TypeString} \"{item.Text}\" exported to \"{exportFullPath}\"";
+                            return true;
+                        }
                     }
-                    debugLog += $"{item.TypeString} \"{item.Text}\" exported to \"{exportFullPath}\"";
-                    return true;
+                    catch (Exception ex)
+                    {
+                        debugLog += $"⏭️ 跳過：{item.Text} - {ex.Message}\n";
+                    }
                 }
             }
             return false;
