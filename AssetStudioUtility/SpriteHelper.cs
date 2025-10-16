@@ -23,6 +23,9 @@ namespace AssetStudio
     public static class SpriteHelper
     {
         public static SpriteInfo spriteinfo = new SpriteInfo();
+        public static bool drawSpriteEdge = false;
+        public static DrawingOptions options;
+
         public static string GetSpriteFolderName(this Sprite m_Sprite)
         {
             return Regex.Replace(m_Sprite.m_Name, @"\d+$", "");
@@ -179,7 +182,9 @@ namespace AssetStudio
                             GraphicsOptions = new GraphicsOptions
                             {
                                 Antialias = false,
-                                AlphaCompositionMode = PixelAlphaCompositionMode.SrcOver
+                                AlphaCompositionMode = drawSpriteEdge
+                                    ? PixelAlphaCompositionMode.SrcOver   // Red Edge
+                                    : PixelAlphaCompositionMode.DestOut   // No Red Edge
                             }
                         };
                         if (triangles.Length < 1024)

@@ -59,6 +59,7 @@
             this.importOptionsToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.saveOptionsToDiskToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showExpOpt = new System.Windows.Forms.ToolStripMenuItem();
+            this.drawSpriteEdge = new System.Windows.Forms.ToolStripMenuItem();
             this.modelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportAllObjectssplitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.exportSelectedObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -280,7 +281,8 @@
             this.useDumpTreeViewToolStripMenuItem,
             this.buildTreeStructureToolStripMenuItem,
             this.importOptionsToolStripMenuItem,
-            this.showExpOpt});
+            this.showExpOpt,
+            this.drawSpriteEdge});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "Options";
@@ -494,6 +496,14 @@
             this.showExpOpt.Size = new System.Drawing.Size(243, 22);
             this.showExpOpt.Text = "Export options";
             this.showExpOpt.Click += new System.EventHandler(this.showExpOpt_Click);
+            // 
+            // drawSpriteEdge
+            // 
+            this.drawSpriteEdge.CheckOnClick = true;
+            this.drawSpriteEdge.Name = "drawSpriteEdge";
+            this.drawSpriteEdge.Size = new System.Drawing.Size(243, 22);
+            this.drawSpriteEdge.Text = "Draw Sprite Edge";
+            this.drawSpriteEdge.CheckedChanged += new System.EventHandler(this.drawSpriteEdge_CheckedChanged);
             // 
             // modelToolStripMenuItem
             // 
@@ -914,9 +924,9 @@
             this.sceneExactSearchCheckBox.AutoSize = true;
             this.sceneExactSearchCheckBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.sceneExactSearchCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(384, 2);
+            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(390, 2);
             this.sceneExactSearchCheckBox.Name = "sceneExactSearchCheckBox";
-            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(85, 17);
+            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(79, 16);
             this.sceneExactSearchCheckBox.TabIndex = 2;
             this.sceneExactSearchCheckBox.Text = "Exact search";
             this.sceneExactSearchCheckBox.UseVisualStyleBackColor = true;
@@ -929,9 +939,9 @@
             this.sceneTreeView.CheckBoxes = true;
             this.sceneTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sceneTreeView.HideSelection = false;
-            this.sceneTreeView.Location = new System.Drawing.Point(0, 20);
+            this.sceneTreeView.Location = new System.Drawing.Point(0, 22);
             this.sceneTreeView.Name = "sceneTreeView";
-            this.sceneTreeView.Size = new System.Drawing.Size(472, 587);
+            this.sceneTreeView.Size = new System.Drawing.Size(472, 585);
             this.sceneTreeView.TabIndex = 0;
             this.sceneTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.sceneTreeView_AfterCheck);
             this.sceneTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.sceneTreeView_NodeMouseClick);
@@ -942,7 +952,7 @@
             this.treeSearch.ForeColor = System.Drawing.SystemColors.GrayText;
             this.treeSearch.Location = new System.Drawing.Point(0, 0);
             this.treeSearch.Name = "treeSearch";
-            this.treeSearch.Size = new System.Drawing.Size(472, 20);
+            this.treeSearch.Size = new System.Drawing.Size(472, 22);
             this.treeSearch.TabIndex = 1;
             this.treeSearch.Text = " Search ";
             this.treeSearch.TextChanged += new System.EventHandler(this.treeSearch_TextChanged);
@@ -1051,7 +1061,7 @@
             this.listSearchHistory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listSearchHistory.Location = new System.Drawing.Point(0, 0);
             this.listSearchHistory.Name = "listSearchHistory";
-            this.listSearchHistory.Size = new System.Drawing.Size(351, 21);
+            this.listSearchHistory.Size = new System.Drawing.Size(351, 20);
             this.listSearchHistory.TabIndex = 2;
             this.listSearchHistory.TabStop = false;
             this.listSearchHistory.SelectedIndexChanged += new System.EventHandler(this.listSearchHistory_SelectedIndexChanged);
@@ -1070,7 +1080,7 @@
             "Regex (Container)"});
             this.listSearchFilterMode.Location = new System.Drawing.Point(351, 0);
             this.listSearchFilterMode.Name = "listSearchFilterMode";
-            this.listSearchFilterMode.Size = new System.Drawing.Size(121, 21);
+            this.listSearchFilterMode.Size = new System.Drawing.Size(121, 20);
             this.listSearchFilterMode.TabIndex = 2;
             this.listSearchFilterMode.SelectedIndexChanged += new System.EventHandler(this.listSearchFilterMode_SelectedIndexChanged);
             // 
@@ -1183,7 +1193,7 @@
             this.assetInfoLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.assetInfoLabel.Location = new System.Drawing.Point(4, 8);
             this.assetInfoLabel.Name = "assetInfoLabel";
-            this.assetInfoLabel.Size = new System.Drawing.Size(0, 13);
+            this.assetInfoLabel.Size = new System.Drawing.Size(0, 12);
             this.assetInfoLabel.TabIndex = 0;
             // 
             // FMODpanel
@@ -1216,7 +1226,7 @@
             this.FMODaudioChannelsLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODaudioChannelsLabel.Location = new System.Drawing.Point(384, 255);
             this.FMODaudioChannelsLabel.Name = "FMODaudioChannelsLabel";
-            this.FMODaudioChannelsLabel.Size = new System.Drawing.Size(38, 13);
+            this.FMODaudioChannelsLabel.Size = new System.Drawing.Size(34, 12);
             this.FMODaudioChannelsLabel.TabIndex = 10;
             this.FMODaudioChannelsLabel.Text = "Stereo";
             // 
@@ -1229,7 +1239,7 @@
             this.FMODcopyrightLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODcopyrightLabel.Location = new System.Drawing.Point(214, 365);
             this.FMODcopyrightLabel.Name = "FMODcopyrightLabel";
-            this.FMODcopyrightLabel.Size = new System.Drawing.Size(283, 13);
+            this.FMODcopyrightLabel.Size = new System.Drawing.Size(287, 12);
             this.FMODcopyrightLabel.TabIndex = 9;
             this.FMODcopyrightLabel.Text = "Audio Engine supplied by FMOD by Firelight Technologies.";
             // 
@@ -1242,7 +1252,7 @@
             this.FMODinfoLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODinfoLabel.Location = new System.Drawing.Point(285, 255);
             this.FMODinfoLabel.Name = "FMODinfoLabel";
-            this.FMODinfoLabel.Size = new System.Drawing.Size(0, 13);
+            this.FMODinfoLabel.Size = new System.Drawing.Size(0, 12);
             this.FMODinfoLabel.TabIndex = 8;
             // 
             // FMODtimerLabel
@@ -1254,7 +1264,7 @@
             this.FMODtimerLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODtimerLabel.Location = new System.Drawing.Point(477, 255);
             this.FMODtimerLabel.Name = "FMODtimerLabel";
-            this.FMODtimerLabel.Size = new System.Drawing.Size(102, 13);
+            this.FMODtimerLabel.Size = new System.Drawing.Size(98, 12);
             this.FMODtimerLabel.TabIndex = 7;
             this.FMODtimerLabel.Text = "00:00.00 / 00:00.00";
             // 
@@ -1267,7 +1277,7 @@
             this.FMODstatusLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODstatusLabel.Location = new System.Drawing.Point(214, 255);
             this.FMODstatusLabel.Name = "FMODstatusLabel";
-            this.FMODstatusLabel.Size = new System.Drawing.Size(47, 13);
+            this.FMODstatusLabel.Size = new System.Drawing.Size(43, 12);
             this.FMODstatusLabel.TabIndex = 6;
             this.FMODstatusLabel.Text = "Stopped";
             // 
@@ -1871,6 +1881,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveOptionsToDiskToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator importOptionsToolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem meshLazyLoadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem drawSpriteEdge;
     }
 }
 

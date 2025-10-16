@@ -145,6 +145,7 @@ namespace AssetStudioGUI
             enablePreview.Checked = Properties.Settings.Default.enablePreview;
             showConsoleToolStripMenuItem.Checked = Properties.Settings.Default.showConsole;
             buildTreeStructureToolStripMenuItem.Checked = Properties.Settings.Default.buildTreeStructure;
+            drawSpriteEdge.Checked = Properties.Settings.Default.drawSpriteEdge;
             useAssetLoadingViaTypetreeToolStripMenuItem.Checked = Properties.Settings.Default.useTypetreeLoading;
             useDumpTreeViewToolStripMenuItem.Checked = Properties.Settings.Default.useDumpTreeView;
             autoPlayAudioAssetsToolStripMenuItem.Checked = Properties.Settings.Default.autoplayAudio;
@@ -3176,6 +3177,13 @@ namespace AssetStudioGUI
             GL.BindVertexArray(0);
             GL.Flush();
             glControl1.SwapBuffers();
+        }
+
+        private void drawSpriteEdge_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.drawSpriteEdge = drawSpriteEdge.Checked;
+            Properties.Settings.Default.Save();
+            AssetStudio.SpriteHelper.drawSpriteEdge = drawSpriteEdge.Checked;
         }
 
         private void glControl1_MouseWheel(object sender, MouseEventArgs e)

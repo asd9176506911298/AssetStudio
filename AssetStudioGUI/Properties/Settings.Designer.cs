@@ -370,5 +370,20 @@ namespace AssetStudioGUI.Properties {
                 this["rawByteArrayFromMono"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool drawSpriteEdge
+        {
+            get
+            {
+                return ((bool)(this["drawSpriteEdge"]));
+            }
+            set
+            {
+                this["drawSpriteEdge"] = value;
+            }
+        }
     }
 }
